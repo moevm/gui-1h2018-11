@@ -2,70 +2,39 @@
 #define SINGLEPLAY_H
 
 #include <QWidget>
-#include "randomchar.h"
-#include "charlabel.h"
 #include <QtSql>
-#include "numberlogic.h"
-#include "backspacelabel.h"
+#include <databasehandler.h>
+#include <mainwindow.h>
+#include "singleplay/Rounds/round.h"
+
+class MainWindow;
+
 namespace Ui {
-class singleplay;
+    class singleplay;
 }
 
-class singleplay : public QWidget
+class SinglePlay : public QWidget
 {
     Q_OBJECT
 
-signals:
-
-    gameStarted();
-    gameEnded();
-
-public slots:
-
-    void createConsonant();
-    void createVowel();
-    void addCharToPreAnswer(QString str);
-    void checkAnswerSlot();
-
-    void endGame();
-    void startNumberRound();
-    void startLatterRound();
-    void nextRound();
-
-    void changeBigNumbersCount(int n);
-    void changeSmallNumbersCount(int n);
-
-    void backspacePress();
-
 public:
-    explicit singleplay(QWidget *parent = 0);
-    ~singleplay();
+    explicit SinglePlay(MainWindow *parent = 0);
+    ~SinglePlay();
+    DataBaseHandler* getDataBaseHandler();
 
-protected:
-    virtual void keyPressEvent(QKeyEvent *event);
 
+private slots:
+    void changeRound(Round::rounds r);
 
 private:
 
-    QString searchSystemAnswer(QString str);
-    QString wordValue(QString str);
-    bool checkWord(QString);
+    void setRound(Round::rounds r);
 
-    backspaceLabel *b;
-
-    randomchar *rand;
-
-    numberlogic *num;
-
-    QString chars;
+    Round *currentRound;
 
     Ui::singleplay *ui;
 
-    QSqlDatabase db_word;
-
-    QString preAnswer,systemAnswer;
-
-    QVector<charlabel*> vecLabel;
+    DataBaseHandler *db;
 };
 
 #endif // SINGLEPLAY_H

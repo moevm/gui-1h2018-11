@@ -25,27 +25,39 @@ DEFINES += QT_DEPRECATED_WARNINGS
 HEADERS += \
     mainwindow.h \
     singleplay/singleplay.h \
-    startmenu.h \
-    singleplay/charlabel.h \
-    singleplay/randomchar.h \
-    singleplay/numberlogic.h \
-    singleplay/backspacelabel.h
+    startmenu.h \    
+    databasehandler.h \    
+    singleplay/Rounds/round.h \
+    singleplay/Rounds/LattersRound/lattersround.h \
+    singleplay/Rounds/LattersRound/backspacelabel.h \
+    singleplay/Rounds/LattersRound/chargenerator.h \
+    singleplay/Rounds/LattersRound/charlabel.h \
+    singleplay/Rounds/NumbersRound/numbersround.h \
+    singleplay/Rounds/AnagramsRound/anagramsround.h \
+    singleplay/Rounds/NumbersRound/numbergenerator.h
 
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
     singleplay/singleplay.cpp \
     startmenu.cpp \
-    singleplay/charlabel.cpp \
-    singleplay/randomchar.cpp \
-    singleplay/numberlogic.cpp \
-    singleplay/backspacelabel.cpp
+    databasehandler.cpp \
+    singleplay/Rounds/round.cpp \
+    singleplay/Rounds/LattersRound/lattersround.cpp \
+    singleplay/Rounds/LattersRound/backspacelabel.cpp \
+    singleplay/Rounds/LattersRound/chargenerator.cpp \
+    singleplay/Rounds/LattersRound/charlabel.cpp \
+    singleplay/Rounds/NumbersRound/numbersround.cpp \
+    singleplay/Rounds/AnagramsRound/anagramsround.cpp \
+    singleplay/Rounds/NumbersRound/numbergenerator.cpp
 
 FORMS += \
     mainwindow.ui \
-    singleplay/singleplay.ui
+    singleplay/singleplay.ui \    
+    singleplay/Rounds/LattersRound/lattersround.ui \
+    singleplay/Rounds/NumbersRound/numbersround.ui \
+    singleplay/Rounds/AnagramsRound/anagramround.ui
 
-DISTFILES += \
-    sample1.db
+DISTFILES +=
 
 

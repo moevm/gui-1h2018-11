@@ -2,20 +2,17 @@
 #define STARTMENU_H
 
 #include <QWidget>
+#include <QLayout>
+#include <QPushButton>
+#include <mainwindow.h>
+
+class MainWindow;
 
 class StartMenu : public QWidget
 {
     Q_OBJECT
 public:
-    explicit StartMenu(QWidget *parent = nullptr);
-
-signals:
-
-public slots:
-
-    void gameStarted();
-    void gameEnded();
-
+    explicit StartMenu(MainWindow *parent = nullptr);
 };
 
 #endif // STARTMENU_H

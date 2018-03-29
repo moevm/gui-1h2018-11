@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <singleplay/singleplay.h>
+#include <startmenu.h>
 namespace Ui {
 class MainWindow;
 }
@@ -17,15 +18,14 @@ public:
 
 public slots:
 
-    void startNewSingleGame();
-    void endLastGame();
+    void startNewSingleGame();    
+    void startMenu();
 
 signals:
 
-    gameStarted();
+    void gameStarted();
 
-private:
-    singleplay *s;
+private:    
     Ui::MainWindow *ui;
 };
 
