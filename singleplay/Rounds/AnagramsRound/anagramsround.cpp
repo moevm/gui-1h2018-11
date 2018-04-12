@@ -17,7 +17,7 @@ AnagramsRound::AnagramsRound(SinglePlay *parent) :
 
     setUpWords(anagram);
 
-    backspaceLabel *bl = new backspaceLabel(this);
+    BackspaceLabel *bl = new BackspaceLabel(this);
 
     bl->setMinimumWidth(30);
 
@@ -40,7 +40,7 @@ void AnagramsRound::nextRound()
 
 void AnagramsRound::setUpWords(QVector<QString>* anagram){
     for(int i= 0,size = anagram->at(1).length();i<size;++i){
-        charlabel* cl = new charlabel(this,QString(anagram->at(1)[i]).toUpper(),true);
+        Charlabel* cl = new Charlabel(this,QString(anagram->at(1)[i]).toUpper(),true);
 
         connect(cl, SIGNAL(click(QString)),
                 this, SLOT(addCharToPreAnswer(QString)));
@@ -49,7 +49,7 @@ void AnagramsRound::setUpWords(QVector<QString>* anagram){
 
     }
     for(int i= 0,size = anagram->at(3).length();i<size;++i){
-        charlabel* cl = new charlabel(this,QString(anagram->at(3)[i]).toUpper(),true);
+        Charlabel* cl = new Charlabel(this,QString(anagram->at(3)[i]).toUpper(),true);
 
         connect(cl, SIGNAL(click(QString)),
                 this, SLOT(addCharToPreAnswer(QString)));
@@ -85,7 +85,7 @@ void AnagramsRound::backspacePress()
         return;
     QString s = QString(ui->preAnswer->
                         text()[ui->preAnswer->text().length() - 1]);
-    for (charlabel* a : ui->word1->findChildren<charlabel*>()) {
+    for (Charlabel* a : ui->word1->findChildren<Charlabel*>()) {
         if (a->text() == s && !a->getAllowed()) {
             a->setAllowed(true);
             ui->preAnswer->setText(
@@ -94,7 +94,7 @@ void AnagramsRound::backspacePress()
             return;
         }
     }
-    for (charlabel* a : ui->word2->findChildren<charlabel*>()) {
+    for (Charlabel* a : ui->word2->findChildren<Charlabel*>()) {
         if (a->text() == s && !a->getAllowed()) {
             a->setAllowed(true);
             ui->preAnswer->setText(

@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "singleplay/singleplay.h"
 #include "QSqlError"
+#include <QFile>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -33,6 +34,11 @@ MainWindow::~MainWindow()
 void MainWindow::startNewSingleGame()
 {
     this->setCentralWidget(new SinglePlay(this));
+}
+
+void MainWindow::startNewMultyGame()
+{
+    this->setCentralWidget(new MultyPlay(this));
 }
 
 void MainWindow::startMenu()

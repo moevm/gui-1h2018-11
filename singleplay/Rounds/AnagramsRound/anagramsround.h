@@ -2,10 +2,10 @@
 #define ANAGRAMROUND_H
 
 #include <QWidget>
-#include "singleplay/Rounds/round.h"
-#include "singleplay/Rounds/LattersRound/charlabel.h"
+#include "round.h"
+#include "GUIelements/charlabel.h"
 #include "singleplay/singleplay.h"
-#include "singleplay/Rounds/LattersRound/backspacelabel.h"
+#include "GUIelements/backspacelabel.h"
 namespace Ui {
 class AnagramRound;
 }

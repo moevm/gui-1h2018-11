@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql
+QT       += core gui sql network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -27,37 +27,74 @@ HEADERS += \
     singleplay/singleplay.h \
     startmenu.h \    
     databasehandler.h \    
-    singleplay/Rounds/round.h \
     singleplay/Rounds/LattersRound/lattersround.h \
-    singleplay/Rounds/LattersRound/backspacelabel.h \
     singleplay/Rounds/LattersRound/chargenerator.h \
-    singleplay/Rounds/LattersRound/charlabel.h \
     singleplay/Rounds/NumbersRound/numbersround.h \
     singleplay/Rounds/AnagramsRound/anagramsround.h \
-    singleplay/Rounds/NumbersRound/numbergenerator.h
+    singleplay/Rounds/NumbersRound/numbergenerator.h \
+    GUIelements/backspacelabel.h \
+    GUIelements/charlabel.h \
+    round.h \
+    multyplay/multyplay.h \
+    multyplay/authform.h \    
+    multyplay/connection.h \
+    multyplay/lostconnection.h \
+    multyplay/Rounds/LattersRound/lattersroundmulty.h \
+    multyplay/Rounds/NumbersRound/numbersroundmulty.h \
+    multyplay/Rounds/AnagramsRound/anagramsroundmulty.h
 
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
     singleplay/singleplay.cpp \
     startmenu.cpp \
-    databasehandler.cpp \
-    singleplay/Rounds/round.cpp \
-    singleplay/Rounds/LattersRound/lattersround.cpp \
-    singleplay/Rounds/LattersRound/backspacelabel.cpp \
-    singleplay/Rounds/LattersRound/chargenerator.cpp \
-    singleplay/Rounds/LattersRound/charlabel.cpp \
+    databasehandler.cpp \    
+    singleplay/Rounds/LattersRound/lattersround.cpp \    
+    singleplay/Rounds/LattersRound/chargenerator.cpp \    
     singleplay/Rounds/NumbersRound/numbersround.cpp \
     singleplay/Rounds/AnagramsRound/anagramsround.cpp \
-    singleplay/Rounds/NumbersRound/numbergenerator.cpp
+    singleplay/Rounds/NumbersRound/numbergenerator.cpp \
+    GUIelements/backspacelabel.cpp \
+    GUIelements/charlabel.cpp \
+    round.cpp \    
+    multyplay/multyplay.cpp \
+    multyplay/authform.cpp \    
+    multyplay/connection.cpp \
+    multyplay/lostconnection.cpp \
+    multyplay/Rounds/LattersRound/lattersroundmulty.cpp \
+    multyplay/Rounds/NumbersRound/numbersroundmulty.cpp \
+    multyplay/Rounds/AnagramsRound/anagramsroundmulty.cpp
 
 FORMS += \
     mainwindow.ui \
     singleplay/singleplay.ui \    
     singleplay/Rounds/LattersRound/lattersround.ui \
     singleplay/Rounds/NumbersRound/numbersround.ui \
-    singleplay/Rounds/AnagramsRound/anagramround.ui
+    singleplay/Rounds/AnagramsRound/anagramround.ui \    
+    multyplay/multyplay.ui \
+    multyplay/authform.ui \
+    multyplay/lostconnection.ui \
+    multyplay/Rounds/LattersRound/lattersroundmulty.ui \
+    multyplay/Rounds/NumbersRound/numbersroundmulty.ui \
+    multyplay/Rounds/AnagramsRound/anagramsroundmulty.ui
 
-DISTFILES +=
 
+
+
+win32 {
+    CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release
+    CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD/debug
+
+    copy_to_build.path = $$DESTDIR
+    copy_to_build.files = copy_to_build_dir/*
+
+    INSTALLS += \
+        copy_to_build
+}
+
+android {
+    deployment.files += words.db
+    deployment.path = /assets/db
+    INSTALLS += deployment
+}
 

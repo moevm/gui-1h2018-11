@@ -6,17 +6,48 @@
 #include <QVariant>
 #include <QString>
 #include <random>
+#include <QFile>
+#include <QStandardPaths>
+#include <QDebug>
 #include <ctime>
 
 DataBaseHandler::DataBaseHandler()
 {
+    //    QFile dfile("./words.db");
+    //    if (dfile.exists())
+    //    {
+    //        quint64 t = dfile.size();
+    //        QFile::setPermissions("./words.db",QFile::WriteOwner |     QFile::ReadOwner);
+    //     }
+
+
     if (QSqlDatabase::contains(QSqlDatabase::defaultConnection)) {
         db_word = QSqlDatabase::database();
     }
     else {
         db_word = QSqlDatabase::addDatabase("QSQLITE");
+#if defined(Q_OS_ANDROID)
+        QFile file("assets:/db/words.db") ;
+        QString patientDbPath;
+        if (file.exists()) {
+            patientDbPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+            if (patientDbPath.isEmpty())
+            {
+                qDebug() << "Could not obtain writable location.";
+            }
+            patientDbPath.append("/words.db");
+            file.copy(patientDbPath) ;
+            QFile::setPermissions(patientDbPath ,QFile::WriteOwner | QFile::ReadOwner) ;
+        } else qDebug() << "the file does not exist" ;
+        db_word.setDatabaseName(patientDbPath);
+        qDebug() << "ANDROID";
+#elif defined(Q_OS_LINUX)
+        qDebug() << "LINUX";
+#elif defined(Q_OS_WIN)
         db_word.setDatabaseName(QCoreApplication::applicationDirPath() + "/words.db");
-    }   
+        qDebug() << "WIN";
+#endif
+    }
 
     db_word.open();
 }
@@ -41,6 +72,8 @@ QString DataBaseHandler::searchSystemAnswer(QString str)
         }
     }
 
+    QString str1 =  qr.lastError().text();
+
     return QString();
 }
 
@@ -49,7 +82,7 @@ QString DataBaseHandler::getWordValue(QString str)
     QSqlQuery qr;
     if (qr.exec("select word,description from ozhigov where word = '" + str.toLower() + "'")) {
         if (qr.next()) {
-            return parsingRow(qr.value(1).toString());            
+            return parsingRow(qr.value(1).toString());
         }
     }
 

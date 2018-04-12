@@ -5,7 +5,7 @@
 #include <QtSql>
 #include <databasehandler.h>
 #include <mainwindow.h>
-#include "singleplay/Rounds/round.h"
+#include "round.h"
 
 class MainWindow;
 

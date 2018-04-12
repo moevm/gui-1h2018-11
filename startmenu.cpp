@@ -10,6 +10,8 @@ StartMenu::StartMenu(MainWindow *parent) : QWidget(parent)
 
 	connect(startSinglePlay, SIGNAL(pressed()),
         parent,SLOT(startNewSingleGame()));
+    connect(startMultyPlay, SIGNAL(pressed()),
+            parent,SLOT(startNewMultyGame()));
 
 	layout->addWidget(startSinglePlay);
 	layout->addWidget(startMultyPlay);

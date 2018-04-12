@@ -1,7 +1,6 @@
 #include "numbersround.h"
 #include "ui_numbersround.h"
-#include "singleplay/Rounds/LattersRound/charlabel.h"
-#include "singleplay/Rounds/LattersRound/backspacelabel.h"
+
 
 NumbersRound::NumbersRound(SinglePlay *parent) :
     Round(parent),
@@ -68,7 +67,7 @@ void NumbersRound::backspacePress()
             s.push_front(ui->preAnswerExpresion->
                          text()[ui->preAnswerExpresion->text().length() - i]);
         }
-        for (charlabel* a : ui->numbersWidget->findChildren<charlabel*>()) {
+        for (Charlabel* a : ui->numbersWidget->findChildren<Charlabel*>()) {
             if (a->text() == s && !a->getAllowed()) {
                 a->setAllowed(true);
                 break;
@@ -136,7 +135,7 @@ void NumbersRound::startNumbersRound(){
 void NumbersRound::addNumbers()
 {
     for(QString s : num_gen->getNumbers()){
-        charlabel *cl = new charlabel(this,s,true);
+        Charlabel *cl = new Charlabel(this,s,true);
 
         ui->numbersWidget->layout()->addWidget(cl);
 
@@ -150,16 +149,16 @@ void NumbersRound::addNumber(QString q)
         ui->preAnswerExpresion->setText(ui->preAnswerExpresion->text()+q);
     else
     {
-        qobject_cast<charlabel*>(sender())->setAllowed(true);
+        qobject_cast<Charlabel*>(sender())->setAllowed(true);
     }
 }
 
 void NumbersRound::addArithmeticOperators(){
-    charlabel *plus = new charlabel(this,"+",true);
-    charlabel *minus = new charlabel(this,"-",true);
-    charlabel *multiply = new charlabel(this,"*",true);
-    charlabel *divide = new charlabel(this,"/",true);
-    backspaceLabel *bl = new backspaceLabel(this);
+    Charlabel *plus = new Charlabel(this,"+",true);
+    Charlabel *minus = new Charlabel(this,"-",true);
+    Charlabel *multiply = new Charlabel(this,"*",true);
+    Charlabel *divide = new Charlabel(this,"/",true);
+    BackspaceLabel *bl = new BackspaceLabel(this);
 
     ui->arithmeticLayout->addWidget(plus);
     ui->arithmeticLayout->addWidget(minus);
@@ -177,7 +176,7 @@ void NumbersRound::addArithmeticOperators(){
 void NumbersRound::addArithmeticOperator(QString q){
     if((ui->preAnswerExpresion->text().end()-1)->isNumber())
         ui->preAnswerExpresion->setText(ui->preAnswerExpresion->text()+q);
-    qobject_cast<charlabel*>(sender())->setAllowed(true);
+    qobject_cast<Charlabel*>(sender())->setAllowed(true);
 }
 
 void NumbersRound::showFinalScore(){

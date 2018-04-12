@@ -2,9 +2,12 @@
 #define NUMBERSROUND_H
 
 #include <QWidget>
-#include "singleplay/Rounds/round.h"
+#include "round.h"
 #include "singleplay/singleplay.h"
 #include "singleplay/Rounds/NumbersRound/numbergenerator.h"
+#include "GUIelements/charlabel.h"
+#include "GUIelements/backspacelabel.h"
+
 namespace Ui {
 class NumbersRound;
 }

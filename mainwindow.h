@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <singleplay/singleplay.h>
 #include <startmenu.h>
+#include <multyplay/multyplay.h>
 namespace Ui {
 class MainWindow;
 }
@@ -19,6 +20,7 @@ public:
 public slots:
 
     void startNewSingleGame();    
+    void startNewMultyGame();
     void startMenu();
 
 signals:

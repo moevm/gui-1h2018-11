@@ -1,8 +1,9 @@
 #pragma once
 
-#include "singleplay/Rounds/round.h"
+#include "round.h"
 #include "singleplay/Rounds/LattersRound/chargenerator.h"
-#include "singleplay/Rounds/LattersRound/charlabel.h"
+#include "GUIelements/charlabel.h"
+#include  "GUIelements/backspacelabel.h"
 #include "singleplay/singleplay.h"
 
 namespace Ui {
@@ -56,7 +57,7 @@ private:
 
     DataBaseHandler *db;
 
-    Ui::LattersRound *ui;
-
     void addBackspaceLabel();
+
+    Ui::LattersRound *ui;
 };

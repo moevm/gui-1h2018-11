@@ -1,6 +1,6 @@
 ﻿#include "lattersround.h"
 #include "ui_lattersround.h"
-#include  "backspacelabel.h"
+
 
 LattersRound::LattersRound(SinglePlay *parent):
     Round(parent),
@@ -93,7 +93,7 @@ void LattersRound::createVowel()
 
 void LattersRound::addCharLabel(QString str)
 {
-    charlabel* label = new charlabel(this, str);
+    Charlabel* label = new Charlabel(this, str);
 
     connect(label, SIGNAL(click(QString)),
             this, SLOT(addCharToPreAnswer(QString)));
@@ -112,7 +112,7 @@ void LattersRound::fillCharWidget(CharGenerator::charType ct)
 
 void LattersRound::startLattersRound()
 {
-    for (charlabel *a : ui->charWidget->findChildren<charlabel*>()) {
+    for (Charlabel *a : ui->charWidget->findChildren<Charlabel*>()) {
         a->setActived(true);
     }
 
@@ -124,7 +124,7 @@ void LattersRound::startLattersRound()
 }
 
 void LattersRound::addBackspaceLabel(){
-    backspaceLabel *bl = new backspaceLabel(this);
+    BackspaceLabel *bl = new BackspaceLabel(this);
 
     ui->charWidget->layout()->addWidget(bl);
     connect(bl,SIGNAL(backspace()),this,SLOT(backspacePress()));
@@ -133,7 +133,7 @@ void LattersRound::addBackspaceLabel(){
 QString LattersRound::getSystemAnswer()
 {
     QString str;
-    for (charlabel *a : ui->charWidget->findChildren<charlabel*>()) {
+    for (Charlabel *a : ui->charWidget->findChildren<Charlabel*>()) {
         str.append(a->text());
     }
     return db->searchSystemAnswer(str);
@@ -158,7 +158,7 @@ void LattersRound::backspacePress()
         return;
     QString s = QString(ui->textAnswer->
                         text()[ui->textAnswer->text().length() - 1]);
-    for (charlabel* a : ui->charWidget->findChildren<charlabel*>()) {
+    for (Charlabel* a : ui->charWidget->findChildren<Charlabel*>()) {
         if (a->text() == s && !a->getAllowed()) {
             a->setAllowed(true);
             break;
