@@ -84,7 +84,7 @@
      <item>
       <widget class="QPushButton" name="connect">
        <property name="text">
-        <string>PushButton</string>
+        <string>Подключиться</string>
        </property>
       </widget>
      </item>
