@@ -1,6 +1,6 @@
 #include "connection.h"
 
-Connection::Connection(QObject *parent,QString name, QString IP, int port) : QObject(parent)
+Connection::Connection(QObject *parent, QString name, QString IP, int port) : QObject(parent)
 {
     _name = name;
     _sok = new QTcpSocket(this);
@@ -9,7 +9,7 @@ Connection::Connection(QObject *parent,QString name, QString IP, int port) : QOb
     connect(_sok, SIGNAL(disconnected()), this, SLOT(onSokDisconnected()));
     connect(_sok, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(onSokDisplayError(QAbstractSocket::SocketError)));
-   _sok->connectToHost(IP, port);
+    _sok->connectToHost(IP, port);
 }
 
 Connection::~Connection()
@@ -61,103 +61,94 @@ void Connection::onSokReadyRead()
     in >> command;
     qDebug() << "Received command " << command;
 
-        switch (command)
-        {        
-        case Client::comUsersOnline:
-        {
-            qDebug() << "Received user list "<<_name;            
-            QString users;
-            in >> users;
-            if (users == ""){
-                emit connectionSuccess();
-                return;
-            }
-            else
-            {
-                emit gameStart();
-                return;
-            }
-            QStringList l =  users.split(",");
-            for(auto u : l){
-                qDebug() << u;
-            }
+    switch (command) {
+    case Client::comUsersOnline: {
+        qDebug() << "Received user list " << _name;
+        QString users;
+        in >> users;
+        emit connectionSuccess();
+        if (users == "") {
+            return;
+        }
+        QStringList l =  users.split(",");
+        for (auto u : l) {
+            qDebug() << u;
+        }
 
+    }
+    break;
+    case Client::comPublicServerMessage: {
+        QString message;
+        in >> message;
+
+        QStringList words = message.split(" ");
+
+        if (words.first() == "Latters") {
+            emit gameStart(Server::latters, message);
+        } else if (words.first()  == "Numbers") {
+            emit gameStart(Server::numbers, message);
+        } else if (words.first() == "Anagrams") {
+            emit gameStart(Server::anagrams, message);
+        } else if (words.first() == "Result") {
+            emit finaScore(message);
         }
-            break;
-        case Client::comPublicServerMessage:
-        {
-            QString message;
-            in >> message;
-            qDebug() << "[PublicServerMessage]: "<<message;
-        }
-            break;
-        case Client::comMessageToAll:
-        {
-            QString user;
-            in >> user;
-            QString message;
-            in >> message;
-            qDebug() << "["+user+"]: " << message;
-        }
-            break;
-        case Client::comMessageToUsers:
-        {
-            QString user;
-            in >> user;
-            QString message;
-            in >> message;
-            qDebug() << "["+user+"](private): "<< message;
-        }
-            break;
-        case Client::comPrivateServerMessage:
-        {
-            QString message;
-            in >> message;
-            qDebug() << "[PrivateServerMessage]: " << message;
-        }
-            break;
-        case Client::comUserJoin:
-        {
-            QString name;
-            in >> name;
-            qDebug() << name <<" joined";
-        }
-            break;
-        case Client::comUserLeft:
-        {
-        }
-            break;
-        case Client::comErrNameInvalid:
-        {
-            qDebug() << "This name is invalid.";
-            emit connctionRefuse("This name is invalid.");
-            _sok->disconnectFromHost();
-        }
-            break;
-        case Client::comErrNameUsed:
-        {
-            qDebug() << "This name is already used.";
-            emit connctionRefuse("This name is already used.");
-            _sok->disconnectFromHost();
-        }
-            break;        
-         case Client::comGetSetUpString:
-        {
-            QString message;
-            in >> message;
-            emit setUpString(message);
-            qDebug() << "Set up message "<<message;
-        }
-            break;
-        case Client::comGetAnswer:
-       {
-           QString message;
-           in >> message;
-           emit setUpAnswer(message);
-           qDebug() << "Set up answer "<<message;
-       }
-           break;
-        }
+
+        qDebug() << "[PublicServerMessage]: " << message;
+    }
+    break;
+    case Client::comMessageToAll: {
+        QString user;
+        in >> user;
+        QString message;
+        in >> message;
+        qDebug() << "[" + user + "]: " << message;
+    }
+    break;
+    case Client::comUserIsReady: {
+        QString user;
+        in >> user;
+        QString message;
+        in >> message;
+        qDebug() << "[" + user + "](private): " << message;
+    }
+    break;
+    case Client::comPrivateServerMessage: {
+        QString message;
+        in >> message;
+        qDebug() << "[PrivateServerMessage]: " << message;
+    }
+    break;
+    case Client::comUserJoin: {
+        QString name;
+        in >> name;
+        qDebug() << name << " joined";
+    }
+    break;
+    case Client::comUserLeft: {
+        emit connctionRefuse("Another player disconected");
+        qDebug() << "User left";
+    }
+    break;
+    case Client::comErrNameInvalid: {
+        qDebug() << "This name is invalid.";
+        emit connctionRefuse("This name is invalid.");
+        _sok->disconnectFromHost();
+    }
+    break;
+    case Client::comErrNameUsed: {
+        qDebug() << "This name is already used.";
+        emit connctionRefuse("This name is already used.");
+        _sok->disconnectFromHost();
+    }
+    break;
+    case Client::comGetAnswer: {
+        QString message;
+        in >> message;
+        emit setUpAnswer(message);
+        qDebug() << "Set up answer " << message;
+    }
+    break;
+    }
 }
 
 void Connection::onSokConnected()
@@ -189,7 +180,7 @@ void Connection::sendMessage(QString str)
 
     out << (quint8)Client::comGetMessage;
 
-    out << str;
+    out << (_name + " " + str);
     out.device()->seek(0);
     out << (quint16)(block.size() - sizeof(quint16));
     _sok->write(block);
@@ -215,6 +206,19 @@ void Connection::getSystemAnswer(QString userAnswer)
     out << (quint16)0;
 
     out << (quint8)Client::comGetAnswer;
+
+    out.device()->seek(0);
+    out << (quint16)(block.size() - sizeof(quint16));
+    _sok->write(block);
+}
+
+void Connection::setReady()
+{
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out << (quint16)0;
+
+    out << (quint8)Client::comUserIsReady;
 
     out.device()->seek(0);
     out << (quint16)(block.size() - sizeof(quint16));

@@ -25,8 +25,9 @@ AuthForm::AuthForm(MultyPlay *parent) :
          */
     QRegExpValidator *ipValidator = new QRegExpValidator(ipRegex, this);
     /* Устанавливаем Валидатор на QLineEdit */
-    ui->IP->setValidator(ipValidator);
-    ui->IP->setText("127.0.0.1");
+    ui->IP->setValidator(ipValidator);    
+
+    ui->connect->setText("Подключиться");
 
     connect(ui->connect,SIGNAL(pressed()),
             this,SLOT(connectToServer()));

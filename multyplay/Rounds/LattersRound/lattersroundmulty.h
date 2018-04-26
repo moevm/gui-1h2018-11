@@ -17,7 +17,7 @@ class LattersRoundMulty : public Round
     Q_OBJECT
 
 public:
-    explicit LattersRoundMulty(MultyPlay *parent = 0);
+    explicit LattersRoundMulty(MultyPlay *parent = 0, QString setUP = "");
     ~LattersRoundMulty();
 
 public slots:
@@ -36,9 +36,11 @@ public slots:
 
     void fillCharWidget(QString chars);
 
-    void getFinalScore(QString answer,QString answerDiscription,QString userAnswerDiscription);
+    void getFinalScore(QString answer);
 
     void sendAnswer();
+
+    void skipRound();
 
 protected:
     virtual void keyPressEvent(QKeyEvent *event);
@@ -46,6 +48,10 @@ protected:
 public slots:
     void backspacePress();
 
+
+private slots:
+
+    void answerSend();
 
 private:
 

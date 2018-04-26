@@ -23,19 +23,18 @@ public:
     explicit MultyPlay(MainWindow *parent = 0);
     ~MultyPlay();
 
-    void setConnection(Connection *newConnection);    
-    Connection* getConnection();
+    void setConnection(Connection *newConnection);
+    Connection *getConnection();
 
 private slots:
-    void changeRound(Round::rounds r);
+    void changeRound(Server::rounds r, QString setUp);
 
     void connctionRefuse(QString str);
     void connectionSuccess();
-    void gameStart();
 
     void showAuthForm();
 
-private:    
+private:
 
     Connection *currentConnection;
 

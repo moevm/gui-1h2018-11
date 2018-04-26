@@ -12,21 +12,23 @@ class Connection : public QObject
 {
     Q_OBJECT
 public:
-    explicit Connection(QObject *parent = nullptr,QString name = "", QString IP="127.0.0.1", int port=1234);
+    explicit Connection(QObject *parent = nullptr, QString name = "", QString IP = "127.0.0.1", int port = 1234);
     ~Connection();
 
     QString getError();
-    void sendMessage(QString str);    
+    void sendMessage(QString str);
     void getSetUpString();
     void getSystemAnswer(QString userAnswer);
 
 signals:
     void connctionRefuse(QString str);
     void connectionSuccess();
-    void gameStart();
-    void setUpString(QString);
+    void gameStart(Server::rounds r, QString setUp);
+    void finaScore(QString);
     void setUpAnswer(QString);
+
 public slots:
+    void setReady();
 
 private slots:
     void onSokConnected();
@@ -38,7 +40,7 @@ private slots:
 private:
     QTcpSocket *_sok;
     quint16 _blockSize;
-    QString _name;    
+    QString _name;
 };
 
 #endif // CONNECTION_H

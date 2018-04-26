@@ -17,6 +17,7 @@ class Server : public QTcpServer
 
 public:
     explicit Server(QObject *parent = 0);
+    ~Server();
     bool doStartServer(QHostAddress addr, qint16 port);
     void doSendToAllUserJoin(QString name);
     void doSendToAllUserLeft(QString name);
@@ -30,17 +31,29 @@ public:
     bool isNameUsed(QString name) const;
 
     void initCharGenerator();
-    CharGenerator getCharGenerator();
+    CharGenerator &getCharGenerator();
 
+    enum rounds {latters, numbers, anagrams} currentRound;
 
 public slots:
     void onMessageFromGui(QString message, const QStringList &users);
     void onRemoveUser(Client *client);
 
+    void takeResult(QString answer);
+
+    void isGameReadyToStart();
+
+    void setReady();
+
 protected:
     void incomingConnection(qintptr handle);
+    void setUpRound(int r);
 
 private:
+
+    QMap<Client *, QString *> clientsAnswers;
+    QMap<Client *, bool> clientsReady;
+
     QList<Client *> clients;
 
     CharGenerator charGenerator;

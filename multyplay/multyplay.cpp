@@ -8,12 +8,12 @@ MultyPlay::MultyPlay(MainWindow *parent) :
     centralWidget(nullptr),
     ui(new Ui::MultyPlay)
 {
-    ui->setupUi(this);    
+    ui->setupUi(this);
 
     showAuthForm();
 
-    connect(ui->exit_2,SIGNAL(clicked(bool)),
-            parent,SLOT(startMenu()));
+    connect(ui->exit_2, SIGNAL(clicked(bool)),
+            parent, SLOT(startMenu()));
 }
 
 MultyPlay::~MultyPlay()
@@ -24,18 +24,17 @@ MultyPlay::~MultyPlay()
 
 void MultyPlay::setConnection(Connection *newConnection)
 {
-    if(currentConnection != nullptr)
-    {        
+    if (currentConnection != nullptr) {
         delete currentConnection;
     }
     currentConnection = newConnection;
 
-    connect(currentConnection,SIGNAL(connctionRefuse(QString)),
-            this,SLOT(connctionRefuse(QString)));
-    connect(currentConnection,SIGNAL(connectionSuccess()),
-            this,SLOT(connectionSuccess()));
-    connect(currentConnection,SIGNAL(gameStart()),
-            this,SLOT(gameStart()));
+    connect(currentConnection, SIGNAL(connctionRefuse(QString)),
+            this, SLOT(connctionRefuse(QString)));
+    connect(currentConnection, SIGNAL(connectionSuccess()),
+            this, SLOT(connectionSuccess()));
+    connect(currentConnection, SIGNAL(gameStart(Server::rounds, QString)),
+            this, SLOT(changeRound(Server::rounds, QString)));
 }
 
 Connection *MultyPlay::getConnection()
@@ -43,59 +42,54 @@ Connection *MultyPlay::getConnection()
     return currentConnection;
 }
 
-void MultyPlay::changeRound(Round::rounds r)
+void MultyPlay::changeRound(Server::rounds r, QString setUp)
 {
-//    if(centralWidget != nullptr)
-//    {
-//        delete centralWidget;
-//    }
-//    switch (r) {
-//    case Round::latters:
-//        centralWidget = new LattersRoundMulty(this);
-//        connect(currentConnection,SIGNAL(setUpString(QString)),
-//                qobject_cast<LattersRoundMulty*>(centralWidget),SLOT(fillCharWidget(QString)));
-//        break;
-//    case Round::numbers:
-//        centralWidget = new NumbersRoundMulty(this);
-//        break;
-//    case Round::anagrams:
-//        centralWidget = new AnagramsRoundMulty(this);
-//        break;
-//    default:
-//        break;
-//    }
+    if (centralWidget != nullptr) {
+        delete centralWidget;
+    }
+    switch (r) {
+    case Server::latters:
+        centralWidget = new LattersRoundMulty(this, setUp);
+        connect(currentConnection, SIGNAL(finaScore(QString)),
+                qobject_cast<LattersRoundMulty *>(centralWidget), SLOT(getFinalScore(QString)));
+        connect(qobject_cast<LattersRoundMulty *>(centralWidget), SIGNAL(endRound(Round::rounds)),
+                currentConnection, SLOT(setReady()));
+        break;
+    case Server::numbers:
+        centralWidget = new NumbersRoundMulty(this);
+        break;
+    case Server::anagrams:
+        centralWidget = new AnagramsRoundMulty(this);
+        break;
+    default:
+        break;
+    }
+    ui->centralLayout->addWidget(centralWidget);
 }
 
 void MultyPlay::connctionRefuse(QString str)
 {
-    if(centralWidget != nullptr)
-    {
+    if (centralWidget != nullptr) {
         delete centralWidget;
     }
-    centralWidget = new LostConnection(this,str);
-    connect(qobject_cast<LostConnection*>(centralWidget),SIGNAL(tryCreateConnection()),
-            this,SLOT(showAuthForm()));
+    centralWidget = new LostConnection(this, str);
+    connect(qobject_cast<LostConnection *>(centralWidget), SIGNAL(tryCreateConnection()),
+            this, SLOT(showAuthForm()));
     ui->centralLayout->addWidget(centralWidget);
 }
 
 void MultyPlay::connectionSuccess()
 {
-    if(centralWidget != nullptr)
-    {
+    if (centralWidget != nullptr) {
         delete centralWidget;
     }
-    centralWidget = new QLabel("Ожидается игроков",this);
+    centralWidget = new QLabel("Ожидается игроков", this);
     ui->centralLayout->addWidget(centralWidget);
-}
-
-void MultyPlay::gameStart()
-{
-    changeRound(Round::latters);
 }
 
 void MultyPlay::showAuthForm()
 {
-    if(centralWidget != nullptr){
+    if (centralWidget != nullptr) {
 
         delete centralWidget;
     }

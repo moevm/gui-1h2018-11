@@ -13,38 +13,28 @@
 
 DataBaseHandler::DataBaseHandler()
 {
-    //    QFile dfile("./words.db");
-    //    if (dfile.exists())
-    //    {
-    //        quint64 t = dfile.size();
-    //        QFile::setPermissions("./words.db",QFile::WriteOwner |     QFile::ReadOwner);
-    //     }
-
-
     if (QSqlDatabase::contains(QSqlDatabase::defaultConnection)) {
         db_word = QSqlDatabase::database();
-    }
-    else {
+    } else {
         db_word = QSqlDatabase::addDatabase("QSQLITE");
 #if defined(Q_OS_ANDROID)
         QFile file("assets:/db/words.db") ;
         QString patientDbPath;
         if (file.exists()) {
             patientDbPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-            if (patientDbPath.isEmpty())
-            {
+            if (patientDbPath.isEmpty()) {
                 qDebug() << "Could not obtain writable location.";
             }
             patientDbPath.append("/words.db");
             file.copy(patientDbPath) ;
-            QFile::setPermissions(patientDbPath ,QFile::WriteOwner | QFile::ReadOwner) ;
+            QFile::setPermissions(patientDbPath, QFile::WriteOwner | QFile::ReadOwner) ;
         } else qDebug() << "the file does not exist" ;
         db_word.setDatabaseName(patientDbPath);
         qDebug() << "ANDROID";
 #elif defined(Q_OS_LINUX)
         qDebug() << "LINUX";
 #elif defined(Q_OS_WIN)
-        db_word.setDatabaseName(QCoreApplication::applicationDirPath() + "/words.db");        
+        db_word.setDatabaseName(QCoreApplication::applicationDirPath() + "/words.db");
 #endif
     }
 
@@ -70,10 +60,6 @@ QString DataBaseHandler::searchSystemAnswer(QString str)
             }
         }
     }
-
-    QString str1 =  qr.lastError().text();
-
-    return QString();
 }
 
 QString DataBaseHandler::getWordValue(QString str)
@@ -87,16 +73,16 @@ QString DataBaseHandler::getWordValue(QString str)
 
 }
 
-QVector<QString>* DataBaseHandler::getAnagram()
+QVector<QString> *DataBaseHandler::getAnagram()
 {
     srand(time(0));
-    int anagram = rand()%2423+1;
+    int anagram = rand() % 2423 + 1;
 
-    QVector<QVector<QString>*>* variants =new QVector<QVector<QString>*>();
+    QVector<QVector<QString>*> *variants = new QVector<QVector<QString>*>();
     QSqlQuery qr;
-    if (qr.exec("SELECT root,word1,value1,word2,value2 FROM leefAnagrams,rootAnagrams WHERE id_root ="+QString::number(anagram)+"  and id = "+QString::number(anagram))) {
+    if (qr.exec("SELECT root,word1,value1,word2,value2 FROM leefAnagrams,rootAnagrams WHERE id_root =" + QString::number(anagram) + "  and id = " + QString::number(anagram))) {
         if (qr.next()) {
-            QVector<QString>* row = new QVector<QString>();
+            QVector<QString> *row = new QVector<QString>();
             row->push_back(qr.value(0).toString());
             row->push_back(qr.value(1).toString());
             row->push_back(qr.value(2).toString());
@@ -107,7 +93,7 @@ QVector<QString>* DataBaseHandler::getAnagram()
         }
     }
 
-    return *(variants->begin()+rand()%variants->length());
+    return *(variants->begin() + rand() % variants->length());
 }
 
 bool DataBaseHandler::isWordContained(QString str)
@@ -127,8 +113,7 @@ bool DataBaseHandler::isWordContainsString(QString word, QString str)
     for (auto a : word) {
         if (m.contains(a) && m.value(a)) {
             m[a] = false;
-        }
-        else {
+        } else {
             return false;
         }
     }

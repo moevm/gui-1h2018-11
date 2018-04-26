@@ -1,17 +1,15 @@
 #include "lattersroundmulty.h"
 #include "ui_lattersroundmulty.h"
 
-LattersRoundMulty::LattersRoundMulty(MultyPlay *parent) :
+LattersRoundMulty::LattersRoundMulty(MultyPlay *parent, QString setUP) :
     Round(parent),
     ui(new Ui::LattersRoundMulty)
 {
     ui->setupUi(this);
 
-    parent->getConnection()->getSetUpString();
+    fillCharWidget(setUP.split(" ")[1]);
 
     initSignalsAndSlots();
-
-    setState(Round::roundState::play);
 }
 
 void LattersRoundMulty::initSignalsAndSlots()
@@ -19,20 +17,27 @@ void LattersRoundMulty::initSignalsAndSlots()
     connect(ui->answer, SIGNAL(clicked(bool)),
             this, SLOT(sendAnswer()));
     connect(ui->skip, SIGNAL(clicked(bool)),
-            this, SLOT(sendAnswer()));
+            this, SLOT(skipRound()));
+    connect(ui->skip, SIGNAL(clicked(bool)),
+            this, SLOT(answerSend()));
+    connect(ui->answer, SIGNAL(clicked(bool)),
+            this, SLOT(answerSend()));
     connect(ui->nextRound, SIGNAL(clicked(bool)),
             this, SLOT(nextRound()));
 }
 
 void LattersRoundMulty::setState(Round::roundState st)
 {
-    switch (st)
-    {
+    switch (st) {
     case Round::roundState::preparation:
+        for (Charlabel *a : ui->charWidget->findChildren<Charlabel *>()) {
+            a->setActived(false);
+        }
+        ui->answer->setEnabled(false);
+        ui->skip->setEnabled(false);
         break;
     case Round::roundState::play:
-        ui->charChoiser_2->hide();
-
+        ui->charWidget->show();
         ui->answerWidget->show();
         ui->controlButtons->show();
         break;
@@ -40,7 +45,6 @@ void LattersRoundMulty::setState(Round::roundState st)
         ui->finalScore->show();
 
         ui->answerWidget->hide();
-        ui->charChoiser_2->hide();
         ui->charWidget->hide();
         ui->controlButtons->hide();
         break;
@@ -51,7 +55,7 @@ void LattersRoundMulty::setState(Round::roundState st)
 
 void LattersRoundMulty::addCharLabel(QString str)
 {
-    Charlabel* label = new Charlabel(this, str);
+    Charlabel *label = new Charlabel(this, str);
 
     connect(label, SIGNAL(click(QString)),
             this, SLOT(addCharToPreAnswer(QString)));
@@ -61,7 +65,7 @@ void LattersRoundMulty::addCharLabel(QString str)
 
 void LattersRoundMulty::fillCharWidget(QString chars)
 {
-    for(auto c : chars){
+    for (auto c : chars) {
         addCharLabel(QString(c));
     }
     startLattersRound();
@@ -69,20 +73,21 @@ void LattersRoundMulty::fillCharWidget(QString chars)
 
 void LattersRoundMulty::startLattersRound()
 {
-    for (Charlabel *a : ui->charWidget->findChildren<Charlabel*>()) {
+    for (Charlabel *a : ui->charWidget->findChildren<Charlabel *>()) {
         a->setActived(true);
     }
 
-    addBackspaceLabel();    
+    addBackspaceLabel();
 
     setState(roundState::play);
 }
 
-void LattersRoundMulty::addBackspaceLabel(){
+void LattersRoundMulty::addBackspaceLabel()
+{
     BackspaceLabel *bl = new BackspaceLabel(this);
 
     ui->charWidget->layout()->addWidget(bl);
-    connect(bl,SIGNAL(backspace()),this,SLOT(backspacePress()));
+    connect(bl, SIGNAL(backspace()), this, SLOT(backspacePress()));
 }
 
 
@@ -92,7 +97,7 @@ void LattersRoundMulty::addCharToPreAnswer(QString str)
 }
 
 
-void LattersRoundMulty::keyPressEvent(QKeyEvent * event)
+void LattersRoundMulty::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Backspace) {
         backspacePress();
@@ -101,11 +106,11 @@ void LattersRoundMulty::keyPressEvent(QKeyEvent * event)
 
 void LattersRoundMulty::backspacePress()
 {
-    if(ui->textAnswer->text().isEmpty())
+    if (ui->textAnswer->text().isEmpty())
         return;
     QString s = QString(ui->textAnswer->
                         text()[ui->textAnswer->text().length() - 1]);
-    for (Charlabel* a : ui->charWidget->findChildren<Charlabel*>()) {
+    for (Charlabel *a : ui->charWidget->findChildren<Charlabel *>()) {
         if (a->text() == s && !a->getAllowed()) {
             a->setAllowed(true);
             break;
@@ -113,22 +118,26 @@ void LattersRoundMulty::backspacePress()
     }
 
     ui->textAnswer->setText(
-                ui->textAnswer->
-                text().left(ui->textAnswer->text().size() - 1));
+        ui->textAnswer->
+        text().left(ui->textAnswer->text().size() - 1));
 }
 
-void LattersRoundMulty::getFinalScore(QString answer,QString answerDiscription,QString userAnswerDiscription)
+void LattersRoundMulty::answerSend()
 {
-    QString score = "Ваш ответ: " + ui->textAnswer->text() + "\n";
-    if (!userAnswerDiscription.isEmpty()) {
-        score.append("Значение слова: " + userAnswerDiscription + "\n");
-    }
-    else {
-        score.append("К сожалению слово отсутствует в словаре\n");
-    }
+    setState(roundState::preparation);
+}
 
-    score.append("Возможный вариант: " + answer + "\n" +
-                 "Значение слова: " + answerDiscription + "\n");
+void LattersRoundMulty::getFinalScore(QString answer)
+{
+    QString score = "Ваш ответ: " + ui->textAnswer->text() + "\n" + answer;
+//    if (!userAnswerDiscription.isEmpty()) {
+//        score.append("Значение слова: " + userAnswerDiscription + "\n");
+//    } else {
+//        score.append("К сожалению слово отсутствует в словаре\n");
+//    }
+
+//    score.append("Возможный вариант: " + answer + "\n" +
+//                 "Значение слова: " + answerDiscription + "\n");
 
     ui->textScore->setText(score);
 
@@ -137,7 +146,12 @@ void LattersRoundMulty::getFinalScore(QString answer,QString answerDiscription,Q
 
 void LattersRoundMulty::sendAnswer()
 {
-    qobject_cast<MultyPlay*>(parent())->getConnection()->getSystemAnswer(ui->textAnswer->text());
+    qobject_cast<MultyPlay *>(parent())->getConnection()->sendMessage(ui->textAnswer->text());
+}
+
+void LattersRoundMulty::skipRound()
+{
+    qobject_cast<MultyPlay *>(parent())->getConnection()->sendMessage("");
 }
 
 void LattersRoundMulty::nextRound()
@@ -149,3 +163,5 @@ LattersRoundMulty::~LattersRoundMulty()
 {
     delete ui;
 }
+
+

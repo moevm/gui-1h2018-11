@@ -26,3 +26,21 @@ HEADERS += \
     client.h \
     databasehandler.h \
     lattersround/chargenerator.h
+
+win32 {
+    CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release
+    CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD/debug
+
+    copy_to_build.path = $$DESTDIR
+    copy_to_build.files = copy_to_build_dir/*
+
+    INSTALLS += \
+        copy_to_build
+}
+
+android {
+    deployment.files += words.db
+    deployment.path = /assets/db
+    INSTALLS += deployment
+}
+

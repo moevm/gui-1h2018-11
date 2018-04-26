@@ -1,15 +1,21 @@
 #include "server.h"
 
 
-Server::Server(QObject *parent) :QTcpServer(parent)
+Server::Server(QObject *parent) : QTcpServer(parent)
 {
     db = new DataBaseHandler();
 }
 
+Server::~Server()
+{
+    for (auto client : clientsAnswers.keys()) {
+        delete clientsAnswers[client];
+    }
+}
+
 bool Server::doStartServer(QHostAddress addr, qint16 port)
 {
-    if (!listen(addr, port))
-    {
+    if (!listen(addr, port)) {
         qDebug() << "Server not started at" << addr << ":" << port;
         return false;
     }
@@ -20,10 +26,10 @@ bool Server::doStartServer(QHostAddress addr, qint16 port)
 void Server::doSendToAllUserJoin(QString name)
 {
     QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);    
-    out << (quint16)0 << Client::comUserJoin << name;    
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out << (quint16)0 << Client::comUserJoin << name;
     out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));    
+    out << (quint16)(block.size() - sizeof(quint16));
     for (int i = 0; i < clients.length(); ++i)
         if (clients.at(i)->getName() != name && clients.at(i)->getAutched())
             clients.at(i)->socket->write(block);
@@ -81,12 +87,12 @@ void Server::doSendMessageToUsers(QString message, const QStringList &users, QSt
 {
     QByteArray block, blockToSender;
     QDataStream out(&block, QIODevice::WriteOnly);
-    out << (quint16)0 << Client::comMessageToUsers << fromUsername << message;
+    out << (quint16)0 << Client::comUserIsReady << fromUsername << message;
     out.device()->seek(0);
     out << (quint16)(block.size() - sizeof(quint16));
 
     QDataStream outToSender(&blockToSender, QIODevice::WriteOnly);
-    outToSender << (quint16)0 << Client::comMessageToUsers << users.join(",") << message;
+    outToSender << (quint16)0 << Client::comUserIsReady << users.join(",") << message;
     outToSender.device()->seek(0);
     outToSender << (quint16)(blockToSender.size() - sizeof(quint16));
     for (int j = 0; j < clients.length(); ++j)
@@ -96,7 +102,7 @@ void Server::doSendMessageToUsers(QString message, const QStringList &users, QSt
             clients.at(j)->socket->write(blockToSender);
 }
 
-void Server::doSendMessageToUser(QString message, QString toUsername,quint8 messageType)
+void Server::doSendMessageToUser(QString message, QString toUsername, quint8 messageType)
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
@@ -104,9 +110,8 @@ void Server::doSendMessageToUser(QString message, QString toUsername,quint8 mess
     out.device()->seek(0);
     out << (quint16)(block.size() - sizeof(quint16));
 
-    for (int j = 0; j < clients.length(); ++j){
-        if (clients.at(j)->getName() == toUsername)
-        {
+    for (int j = 0; j < clients.length(); ++j) {
+        if (clients.at(j)->getName() == toUsername) {
             clients.at(j)->socket->write(block);
         }
     }
@@ -115,7 +120,7 @@ void Server::doSendMessageToUser(QString message, QString toUsername,quint8 mess
 QStringList Server::getUsersOnline() const
 {
     QStringList l;
-    foreach (Client * c, clients)
+    foreach (Client *c, clients)
         if (c->getAutched())
             l << c->getName();
     return l;
@@ -142,13 +147,13 @@ void Server::initCharGenerator()
     for (auto word : charGenerator.getPossibleCombination()) {
         if (db->searchSystemAnswer(word).isEmpty()) {
             charGenerator.reGenerateChars();
-            initCharGenerator();            
+            initCharGenerator();
             return;
         }
     }
 }
 
-CharGenerator Server::getCharGenerator()
+CharGenerator &Server::getCharGenerator()
 {
     return charGenerator;
 }
@@ -156,13 +161,138 @@ CharGenerator Server::getCharGenerator()
 void Server::incomingConnection(qintptr handle)
 {
     Client *client = new Client(handle, this, this);
-    connect(client, SIGNAL(removeUser(Client*)), this, SLOT(onRemoveUser(Client*)));
+    connect(client, SIGNAL(removeUser(Client *)), this, SLOT(onRemoveUser(Client *)));
+    connect(client, SIGNAL(readyToStart()),
+            this, SLOT(isGameReadyToStart()));
+    connect(client, SIGNAL(takeAnswer(QString)),
+            this, SLOT(takeResult(QString)));
+    connect(client, SIGNAL(userIsReady()),
+            this, SLOT(setReady()));
     clients.append(client);
+    clientsAnswers.insert(client, nullptr);
+    clientsReady.insert(client, true);
+}
+
+void Server::setUpRound(int r)
+{
+    QString message;
+
+    switch (r) {
+    case latters: {
+
+        currentRound = latters;
+
+        message.append("Latters ");
+
+        initCharGenerator();
+
+        const int vowelsCount = CharGenerator::MIN_VOWEL_COUNT
+                                + rand() % (CharGenerator::MAX_VOWEL_COUNT - CharGenerator::MIN_VOWEL_COUNT);
+
+
+        for (int i = 0; i < vowelsCount ; ++i) {
+            message.append(charGenerator.generateNextChar(CharGenerator::Vovel)[0]);
+        }
+        for (int i = 0; i < CharGenerator::LATTERS_COUNT - vowelsCount; ++i) {
+            message.append(charGenerator.generateNextChar(CharGenerator::Consonant)[0]);
+        }
+
+        message += " " + db->searchSystemAnswer(message);
+
+        break;
+    }
+    case numbers:
+        currentRound = numbers;
+
+        message.append("Numbers ");
+
+        break;
+    case anagrams:
+        currentRound = anagrams;
+
+        message.append("Anagrams ");
+
+        break;
+    default:
+        break;
+    }
+
+    doSendToAllServerMessage(message);
+    qDebug() << message;
 }
 
 void Server::onRemoveUser(Client *client)
 {
     clients.removeAt(clients.indexOf(client));
+}
+
+void Server::takeResult(QString answer)
+{
+    QList<QString> pair = answer.split(" ");
+
+    for (auto client : clientsAnswers.keys()) {
+        if (client->getName() == pair.first()) {
+            clientsAnswers[client] = new QString(pair.last());
+        }
+    }
+
+    QString result = "Result ";
+
+    for (auto client : clientsAnswers.keys()) {
+        if (clientsAnswers[client] == nullptr) {
+            return;
+        }
+        result += client->getName() + " " +  *clientsAnswers[client] + " ";
+    }
+    doSendToAllServerMessage(result.trimmed());
+
+    for (auto client : clientsAnswers.keys()) {
+        delete clientsAnswers[client];
+        clientsAnswers[client] = nullptr;
+        clientsReady[client] = false;
+    }
+
+    qDebug() << result;
+
+}
+
+void Server::isGameReadyToStart()
+{
+    int autchedCount = 0;
+    for (auto client : clients) {
+        if (client->isAutched) {
+            autchedCount++;
+        }
+    }
+    if (autchedCount == 2) {
+        setUpRound(latters);
+    }
+}
+
+void Server::setReady()
+{
+    clientsReady[(Client *)QObject::sender()] = true;
+
+    for (auto clientIsReady : clientsReady.values()) {
+        if (!clientIsReady) {
+            return;
+        }
+    }
+
+    switch (currentRound) {
+    case latters:
+        setUpRound(numbers);
+        break;
+    case numbers:
+        setUpRound(anagrams);
+        break;
+    case anagrams:
+        setUpRound(latters);
+        break;
+    default:
+        break;
+    }
+
 }
 
 void Server::onMessageFromGui(QString message, const QStringList &users)

@@ -45,7 +45,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="IP"/>
+        <widget class="QLineEdit" name="IP">
+         <property name="text">
+          <string>127.0.0.1</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QLabel" name="portLabel">
