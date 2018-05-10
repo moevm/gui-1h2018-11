@@ -30,10 +30,10 @@ private slots:
     void backspacePress();
 private:
     DataBaseHandler *db;
-    Ui::AnagramRound *ui;
     QString anagram;
 
     void setUpWords(QVector<QString> *anagram);
+    Ui::AnagramRound *ui;
 };
 
 #endif // ANAGRAMROUND_H

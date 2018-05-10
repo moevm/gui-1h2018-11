@@ -56,10 +56,18 @@ void MultyPlay::changeRound(Server::rounds r, QString setUp)
                 currentConnection, SLOT(setReady()));
         break;
     case Server::numbers:
-        centralWidget = new NumbersRoundMulty(this);
+        centralWidget = new NumbersRoundMulty(this, setUp);
+        connect(currentConnection, SIGNAL(finaScore(QString)),
+                qobject_cast<NumbersRoundMulty *>(centralWidget), SLOT(getFinalScore(QString)));
+        connect(qobject_cast<NumbersRoundMulty *>(centralWidget), SIGNAL(endRound(Round::rounds)),
+                currentConnection, SLOT(setReady()));
         break;
     case Server::anagrams:
-        centralWidget = new AnagramsRoundMulty(this);
+        centralWidget = new AnagramsRoundMulty(this, setUp);
+        connect(currentConnection, SIGNAL(finaScore(QString)),
+                qobject_cast<AnagramsRoundMulty *>(centralWidget), SLOT(getFinalScore(QString)));
+        connect(qobject_cast<AnagramsRoundMulty *>(centralWidget), SIGNAL(endRound(Round::rounds)),
+                currentConnection, SLOT(setReady()));
         break;
     default:
         break;

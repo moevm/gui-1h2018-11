@@ -24,8 +24,6 @@ public slots:
 
     void addCharToPreAnswer(QString str);
 
-    void startLattersRound();
-
     void nextRound();
 
     void initSignalsAndSlots();
@@ -51,7 +49,7 @@ public slots:
 
 private slots:
 
-    void answerSend();
+    void answerSended();
 
 private:
 

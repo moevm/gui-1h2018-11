@@ -19,9 +19,9 @@ void LattersRoundMulty::initSignalsAndSlots()
     connect(ui->skip, SIGNAL(clicked(bool)),
             this, SLOT(skipRound()));
     connect(ui->skip, SIGNAL(clicked(bool)),
-            this, SLOT(answerSend()));
+            this, SLOT(answerSended()));
     connect(ui->answer, SIGNAL(clicked(bool)),
-            this, SLOT(answerSend()));
+            this, SLOT(answerSended()));
     connect(ui->nextRound, SIGNAL(clicked(bool)),
             this, SLOT(nextRound()));
 }
@@ -40,10 +40,11 @@ void LattersRoundMulty::setState(Round::roundState st)
         ui->charWidget->show();
         ui->answerWidget->show();
         ui->controlButtons->show();
+        ui->nextRound->hide();
         break;
     case Round::roundState::end:
         ui->finalScore->show();
-
+        ui->nextRound->show();
         ui->answerWidget->hide();
         ui->charWidget->hide();
         ui->controlButtons->hide();
@@ -55,7 +56,7 @@ void LattersRoundMulty::setState(Round::roundState st)
 
 void LattersRoundMulty::addCharLabel(QString str)
 {
-    Charlabel *label = new Charlabel(this, str);
+    Charlabel *label = new Charlabel(this, str, true);
 
     connect(label, SIGNAL(click(QString)),
             this, SLOT(addCharToPreAnswer(QString)));
@@ -67,14 +68,6 @@ void LattersRoundMulty::fillCharWidget(QString chars)
 {
     for (auto c : chars) {
         addCharLabel(QString(c));
-    }
-    startLattersRound();
-}
-
-void LattersRoundMulty::startLattersRound()
-{
-    for (Charlabel *a : ui->charWidget->findChildren<Charlabel *>()) {
-        a->setActived(true);
     }
 
     addBackspaceLabel();
@@ -122,7 +115,7 @@ void LattersRoundMulty::backspacePress()
         text().left(ui->textAnswer->text().size() - 1));
 }
 
-void LattersRoundMulty::answerSend()
+void LattersRoundMulty::answerSended()
 {
     setState(roundState::preparation);
 }
@@ -156,6 +149,7 @@ void LattersRoundMulty::skipRound()
 
 void LattersRoundMulty::nextRound()
 {
+    ui->nextRound->setEnabled(false);
     emit endRound(Round::latters);
 }
 
