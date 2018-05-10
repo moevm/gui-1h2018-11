@@ -144,6 +144,10 @@ bool Server::isNameUsed(QString name) const
 
 void Server::initCharGenerator()
 {
+    if (charGenerator.getCurrentCharsCount() != 0) {
+        charGenerator.reGenerateChars();
+    }
+
     for (auto word : charGenerator.getPossibleCombination()) {
         if (db->searchSystemAnswer(word).isEmpty()) {
             charGenerator.reGenerateChars();
@@ -201,18 +205,42 @@ void Server::setUpRound(int r)
 
         break;
     }
-    case numbers:
+    case numbers: {
         currentRound = numbers;
+
+        const int lowNumbersCount = rand() % 4 + 2;
+
+        delete num_gen;
+
+        num_gen = new NumberGenerator(lowNumbersCount, 6 - lowNumbersCount);
 
         message.append("Numbers ");
 
+        for (QString s : num_gen->getNumbers()) {
+            message.append(s + ";");
+        }
+        message.chop(1);
+
+        message.append(" ");
+
+        message.append(num_gen->getRequiredNumber());
+
         break;
-    case anagrams:
+    }
+    case anagrams: {
         currentRound = anagrams;
 
         message.append("Anagrams ");
 
+
+        QVector<QString> *anagram =  db->getAnagram();
+
+        message.append(anagram->at(1) + " ");
+        message.append(anagram->at(3) + " ");
+        message.append(anagram->at(0));
+
         break;
+    }
     default:
         break;
     }
@@ -224,6 +252,8 @@ void Server::setUpRound(int r)
 void Server::onRemoveUser(Client *client)
 {
     clients.removeAt(clients.indexOf(client));
+    clientsAnswers.remove(client);
+    clientsReady.remove(client);
 }
 
 void Server::takeResult(QString answer)
@@ -282,12 +312,15 @@ void Server::setReady()
     switch (currentRound) {
     case latters:
         setUpRound(numbers);
+        qDebug() << "SetUP numbers";
         break;
     case numbers:
         setUpRound(anagrams);
+        qDebug() << "SetUP anagrams";
         break;
     case anagrams:
         setUpRound(latters);
+        qDebug() << "SetUP latters";
         break;
     default:
         break;

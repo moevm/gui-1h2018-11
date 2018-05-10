@@ -19,13 +19,15 @@ SOURCES += \
     server.cpp \
     client.cpp \
     databasehandler.cpp \
-    lattersround/chargenerator.cpp
+    lattersround/chargenerator.cpp \
+    numbersround/numbergenerator.cpp
 
 HEADERS += \
     server.h \
     client.h \
     databasehandler.h \
-    lattersround/chargenerator.h
+    lattersround/chargenerator.h \
+    numbersround/numbergenerator.h
 
 win32 {
     CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release

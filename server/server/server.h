@@ -7,6 +7,7 @@
 #include "client.h"
 #include "databasehandler.h"
 #include "lattersround/chargenerator.h"
+#include "numbersround/numbergenerator.h"
 
 class Client;
 class Dialog;
@@ -57,6 +58,7 @@ private:
     QList<Client *> clients;
 
     CharGenerator charGenerator;
+    NumberGenerator *num_gen;
 
     DataBaseHandler *db;
 };
